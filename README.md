@@ -25,5 +25,5 @@ mvn clean install
 ### Run
 
 ```
-java -jar extract-rendering-report.jar "server.log"
+java -jar target/extract-rendering-report-0.0.1-SNAPSHOT.jar "server.log"
 ```
