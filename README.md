@@ -4,7 +4,7 @@ A tool that "scans" log files and extract information from it.
 
 ### How it works
 
-This tool receives a .log file as argument, processes it and generate XML's for each document ID. The generated files will be located at the  `output` folder.
+This tool receives a .log file as argument, processes it and generate one XML with the process report. The generated file will be located at the  `output` folder.
 
 
 ### Tasks to accomplish the objective
