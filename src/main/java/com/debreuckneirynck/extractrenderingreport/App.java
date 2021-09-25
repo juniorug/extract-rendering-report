@@ -1,4 +1,4 @@
-package com.debreuck.neirynck.extractrenderingreport;
+package com.debreuckneirynck.extractrenderingreport;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

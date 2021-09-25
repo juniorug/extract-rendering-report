@@ -37,7 +37,7 @@
           <configuration>
             <archive>
               <manifest>
-                <mainClass>com.debreuck.neirynck.extractrenderingreport.App</mainClass>
+                <mainClass>com.debreuckneirynck.extractrenderingreport.App</mainClass>
               </manifest>
             </archive>
           </configuration>
