@@ -56,9 +56,9 @@ public class ExtractReportService {
           addGetRendering(line);
         }
       }
-      report.generateSummary();
+      
       // System.out.println(report);
-      report.getRenderingList().stream().filter(r -> r.getUid().equals("1286380911373-1657")).forEach(System.out::println);
+      renderingList.stream().filter(r -> r.getUid().equals("1286380911373-1657")).forEach(System.out::println);
       Map<String, Long> counted = uidList.stream()
           .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
@@ -70,19 +70,23 @@ public class ExtractReportService {
       // System.out.println(counted);
       // note that Scanner suppresses exceptions
       
-      Map<String, List<Rendering>> RenderingPerUID = report.getRenderingList().stream()
+      Map<String, List<Rendering>> renderingPerUID = renderingList.stream()
           .collect(Collectors.groupingBy(Rendering::getUid));
       //System.out.println("XXXXXXXXXXXXXx");
-      RenderingPerUID.entrySet().stream().parallel() .filter(map -> map.getKey().equals("1286380911373-1657")).forEach(System.out::println);
+      renderingPerUID.entrySet().stream().parallel() .filter(map -> map.getKey().equals("1286380911373-1657")).forEach(System.out::println);
       //System.out.println(RenderingPerUID);
       System.out.println("YYYYYYYY");
       //removeDuplicates(RenderingPerUID).entrySet().stream().parallel().filter(map -> map.getKey().equals("1286380911373-1657")).forEach(System.out::println);
-      removeDuplicates(RenderingPerUID).entrySet().stream().parallel().forEach(System.out::println);
+      removeDuplicates(renderingPerUID).entrySet().stream().parallel().forEach(System.out::println);
       
       System.out.println("ZZZZZZZZZZZZZZZZZZ");
-      renderingMap.entrySet().stream().parallel() .filter(map -> map.getKey().equals("1286380911373-1657")).forEach(System.out::println);
+      //renderingMap.entrySet().stream().parallel() .filter(map -> map.getKey().equals("1286380911373-1657")).forEach(System.out::println);
       //System.out.println(RenderingPerUID);
-      
+      Map<String, Rendering> singleMap = removeDuplicates(renderingPerUID);
+      //singleMap.entrySet().stream().parallel().forEach(System.out::println);
+      report.setRenderingList(new ArrayList<>(singleMap.values()));
+      report.generateSummary();
+      System.out.println(report);
       if (sc.ioException() != null) {
         throw sc.ioException();
       }
@@ -110,7 +114,7 @@ public class ExtractReportService {
     rendering.setPage(page);
     rendering.getWorkingThreadList().add(workingThread);
     renderingList.add(rendering);
-    report.addRendering(rendering);
+    //report.addRendering(rendering);
   }
   
   private void addStartRendering(String line, int workingThread) {
@@ -134,7 +138,7 @@ public class ExtractReportService {
     }
     uidList.add(uid);
 
-    report.getRenderingList().stream().filter(r -> r.getWorkingThreadList().contains(workingThread))
+    renderingList.stream().filter(r -> r.getWorkingThreadList().contains(workingThread))
         .filter(r -> r.getUid().equals("") || r.getUid().equals(uid)).findFirst().ifPresent(r -> {
           r.setUid(uid);
           r.getStart().add(startRenderingTimestamp);
@@ -145,7 +149,7 @@ public class ExtractReportService {
     String getRenderingTimestamp = StringUtils.substringBefore(line, " [WorkerThread");
     String uid = StringUtils.substringBetween(
         StringUtils.substringAfter(line, EXECUTING_REQUEST_GET_RENDERING_WITH_ARGUMENTS), "[", "]");
-    report.getRenderingList().stream().filter(r -> r.getUid().equals(uid)).findFirst()
+    renderingList.stream().filter(r -> r.getUid().equals(uid)).findFirst()
         .ifPresent(r -> r.getGet().add(getRenderingTimestamp));
   }
   
