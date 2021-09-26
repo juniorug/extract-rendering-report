@@ -42,6 +42,10 @@ public class Report {
     summary.setCount(renderingList.size());
     //TODO 
     summary.setDuplicates(0);
+    /*
+     * renderingList.stream() .filter(rendering -> rendering.getStart().size() == 1)
+     * .forEach(System.out::println);
+     */
     
     summary.setUnnecessary( 
         renderingList.stream()
