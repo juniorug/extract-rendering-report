@@ -4,7 +4,7 @@ public class Summary {
 
   private int count;
   private int duplicates;
-  private int unnecessary;
+  private long unnecessary;
 
   public Summary() {
     this.count = 0;
@@ -12,7 +12,7 @@ public class Summary {
     this.unnecessary = 0;
   }
 
-  public Summary(int count, int duplicates, int unnecessary) {
+  public Summary(int count, int duplicates, long unnecessary) {
     super();
     this.count = count;
     this.duplicates = duplicates;
@@ -35,11 +35,18 @@ public class Summary {
     this.duplicates = duplicates;
   }
 
-  public int getUnnecessary() {
+  public long getUnnecessary() {
     return unnecessary;
   }
 
-  public void setUnnecessary(int unnecessary) {
+  public void setUnnecessary(long unnecessary) {
     this.unnecessary = unnecessary;
   }
+
+  @Override
+  public String toString() {
+    return "Summary [count=" + count + ", duplicates=" + duplicates + ", unnecessary=" + unnecessary + "]";
+  }
+  
+  
 }

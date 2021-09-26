@@ -1,26 +1,29 @@
 package com.debreuckneirynck.extractrenderingreport.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Report {
 
-  private Rendering rendering;
+  private List<Rendering> renderingList;
   private Summary summary;
 
   public Report() {
-    this.rendering = new Rendering();
+    this.renderingList = new ArrayList<>();
     this.summary = new Summary();
   }
 
-  public Report(Rendering rendering, Summary summary) {
-    this.rendering = rendering;
+  public Report(List<Rendering> renderingList, Summary summary) {
+    this.renderingList = renderingList;
     this.summary = summary;
   }
 
-  public Rendering getRendering() {
-    return rendering;
+  public List<Rendering> getRenderingList() {
+    return renderingList;
   }
 
-  public void setRendering(Rendering rendering) {
-    this.rendering = rendering;
+  public void setRenderingList(List<Rendering> renderingList) {
+    this.renderingList = renderingList;
   }
 
   public Summary getSummary() {
@@ -29,6 +32,27 @@ public class Report {
 
   public void setSummary(Summary summary) {
     this.summary = summary;
+  }
+  
+  public void addRendering(Rendering rendering) {
+    renderingList.add(rendering);
+  }
+  
+  public void generateSummary() {
+    summary.setCount(renderingList.size());
+    //TODO 
+    summary.setDuplicates(0);
+    
+    summary.setUnnecessary( 
+        renderingList.stream()
+        .filter(rendering -> rendering.getStart().isEmpty())
+        .count()
+        );
+  }
+ 
+  @Override
+  public String toString() {
+    return "Report [ \n\t renderingList= \n\t\t" + renderingList + ", \n\t summary=" + summary + "]";
   }
 
 }

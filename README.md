@@ -19,11 +19,11 @@ This tool receives a .log file as argument, processes it and generate one XML wi
 ### Build
 
 ```
-mvn clean install
+mvn clean compile assembly:single
 ```
 
 ### Run
 
 ```
-java -jar target/extract-rendering-report-0.0.1-SNAPSHOT.jar "server.log"
+java -jar target/extract-rendering-report-0.0.1-SNAPSHOT.jar "path/to/server.log"
 ```

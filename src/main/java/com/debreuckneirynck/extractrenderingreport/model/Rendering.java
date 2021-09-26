@@ -7,6 +7,7 @@ public class Rendering {
 
   private int document;
   private int page;
+  private int workingThread;
   private String uid;
   private List<String> start;
   private List<String> get;
@@ -14,14 +15,18 @@ public class Rendering {
   public Rendering() {
     this.document = 0;
     this.page = 0;
+    this.page = workingThread;
     this.uid = "";
     this.start = new ArrayList<>();
     this.get = new ArrayList<>();
+    //this.get.add("foo");
+    //this.get.add("bar");
   }
 
-  public Rendering(int document, int page, String uid, List<String> start, List<String> get) {
+  public Rendering(int document, int page, int workingThread, String uid, List<String> start, List<String> get) {
     this.document = document;
     this.page = page;
+    this.workingThread = workingThread;
     this.uid = uid;
     this.start = start;
     this.get = get;
@@ -41,6 +46,14 @@ public class Rendering {
 
   public void setPage(int page) {
     this.page = page;
+  }
+
+  public int getWorkingThread() {
+    return workingThread;
+  }
+
+  public void setWorkingThread(int workingThread) {
+    this.workingThread = workingThread;
   }
 
   public String getUid() {
@@ -65,6 +78,12 @@ public class Rendering {
 
   public void setGet(List<String> get) {
     this.get = get;
+  }
+
+  @Override
+  public String toString() {
+    return "[ document=" + document + ", page=" + page + ", workingThread=" + workingThread + ", uid=" + uid
+        + ", start=" + start + ", get=" + get + "]\n";
   }
 
 }
