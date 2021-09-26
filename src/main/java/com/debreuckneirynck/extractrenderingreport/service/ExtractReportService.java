@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -25,11 +26,15 @@ public class ExtractReportService {
 
   private Report report;
   private List<String> uidList;
-
+  private List<Rendering> renderingList;
+  private Map<String, Rendering> renderingMap; 
+  
   public void processFile(String filename) {
     report = new Report();
     uidList = new ArrayList<>();
-
+    renderingList = new ArrayList<>();
+    renderingMap = new HashMap<>();
+    
     try (InputStream inputStream = new FileInputStream(filename);
         Scanner sc = new Scanner(inputStream, StandardCharsets.UTF_8)) {
 
@@ -67,9 +72,17 @@ public class ExtractReportService {
       
       Map<String, List<Rendering>> RenderingPerUID = report.getRenderingList().stream()
           .collect(Collectors.groupingBy(Rendering::getUid));
-      System.out.println("XXXXXXXXXXXXXx");
+      //System.out.println("XXXXXXXXXXXXXx");
       RenderingPerUID.entrySet().stream().parallel() .filter(map -> map.getKey().equals("1286380911373-1657")).forEach(System.out::println);
       //System.out.println(RenderingPerUID);
+      System.out.println("YYYYYYYY");
+      //removeDuplicates(RenderingPerUID).entrySet().stream().parallel().filter(map -> map.getKey().equals("1286380911373-1657")).forEach(System.out::println);
+      removeDuplicates(RenderingPerUID).entrySet().stream().parallel().forEach(System.out::println);
+      
+      System.out.println("ZZZZZZZZZZZZZZZZZZ");
+      renderingMap.entrySet().stream().parallel() .filter(map -> map.getKey().equals("1286380911373-1657")).forEach(System.out::println);
+      //System.out.println(RenderingPerUID);
+      
       if (sc.ioException() != null) {
         throw sc.ioException();
       }
@@ -96,6 +109,7 @@ public class ExtractReportService {
     rendering.setDocument(documentId);
     rendering.setPage(page);
     rendering.getWorkingThreadList().add(workingThread);
+    renderingList.add(rendering);
     report.addRendering(rendering);
   }
   
@@ -103,6 +117,18 @@ public class ExtractReportService {
     
     String startRenderingTimestamp = StringUtils.substringBefore(line, " [WorkerThread");
     String uid = StringUtils.substringAfter(line, SERVICE_START_RENDERING_RETURNED);
+    
+    /*
+     * if (!renderingMap.containsKey(uid)) { renderingMap.put(uid,
+     * renderingList.stream() .filter(r ->
+     * r.getWorkingThreadList().contains(workingThread)) .filter(r ->
+     * r.getUid().equals("") || r.getUid().equals(uid)) .findAny() .orElse(null)); }
+     * 
+     * Rendering existing = renderingMap.get(uid);
+     * existing.getWorkingThreadList().add(workingThread);
+     * existing.getStart().add(startRenderingTimestamp);
+     */
+    
     if (uid.equals("1286380911373-1657")) {
       System.out.println("start rendering with id: " + uid + " workingthread: " + workingThread);
     }
@@ -121,5 +147,34 @@ public class ExtractReportService {
         StringUtils.substringAfter(line, EXECUTING_REQUEST_GET_RENDERING_WITH_ARGUMENTS), "[", "]");
     report.getRenderingList().stream().filter(r -> r.getUid().equals(uid)).findFirst()
         .ifPresent(r -> r.getGet().add(getRenderingTimestamp));
+  }
+  
+  private Map<String, Rendering> removeDuplicates(Map<String, List<Rendering>> map) {
+    
+    Map<String, Rendering> singleEntryMap = new HashMap<>();
+    for (Map.Entry<String, List<Rendering>> pair : map.entrySet()) {
+      List<Rendering> renderingListWithSameUid = pair.getValue();
+      if (renderingListWithSameUid.size() > 1) {
+        Rendering rendering = new Rendering();
+        int index = 0;
+        for(Rendering duplicated : renderingListWithSameUid) {
+          if(index == 0) {
+            rendering.setDocument(duplicated.getDocument());
+            rendering.setPage(duplicated.getPage());
+            rendering.setUid(duplicated.getUid());
+          }
+          
+          rendering.getWorkingThreadList().addAll(duplicated.getWorkingThreadList());
+          rendering.getGet().addAll(duplicated.getGet());
+          rendering.getStart().addAll(duplicated.getStart());
+          index ++;
+        }
+        singleEntryMap.put(pair.getKey(), rendering);
+        
+      } else  if (renderingListWithSameUid.size() == 1) {
+        singleEntryMap.put(pair.getKey(), renderingListWithSameUid.get(0));
+      }
+    }
+    return singleEntryMap;
   }
 }
