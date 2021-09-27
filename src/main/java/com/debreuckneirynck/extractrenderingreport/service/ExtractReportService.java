@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,17 +22,16 @@ public class ExtractReportService {
   private static final String EXECUTING_REQUEST_START_RENDERING = "[ServiceProvider]: Executing request startRendering";
   private static final String SERVICE_START_RENDERING_RETURNED = "Service startRendering returned ";
   private static final String EXECUTING_REQUEST_GET_RENDERING_WITH_ARGUMENTS = "Executing request getRendering with arguments ";
-
-  private Report report;
-  private List<String> uidList;
-  private List<Rendering> renderingList;
-  private Map<String, Rendering> renderingMap; 
+  private static final String OPEN_BRACKETS = "[";
+  private static final String CLOSE_BRACKETS = "]";
+  private static final String WORKER_THREAD = " [WorkerThread";
+  private static final String EMPTY_STRING = "";
   
-  public void processFile(String filename) {
-    report = new Report();
-    uidList = new ArrayList<>();
+  private List<Rendering> renderingList; 
+  
+  public Report processFile(String filename) {
+    Report report = new Report();
     renderingList = new ArrayList<>();
-    renderingMap = new HashMap<>();
     
     try (InputStream inputStream = new FileInputStream(filename);
         Scanner sc = new Scanner(inputStream, StandardCharsets.UTF_8)) {
@@ -41,7 +39,7 @@ public class ExtractReportService {
       while (sc.hasNextLine()) {
         String line = sc.nextLine();
         int workingThread = StringUtils.containsIgnoreCase(line, "WorkerThread-")
-            ? Integer.parseInt(StringUtils.substringBetween(line, "[", "]").split("-")[1])
+            ? Integer.parseInt(StringUtils.substringBetween(line, OPEN_BRACKETS, CLOSE_BRACKETS).split("-")[1])
             : -1;
         
         if (line.contains(EXECUTING_REQUEST_START_RENDERING)) {
@@ -56,104 +54,62 @@ public class ExtractReportService {
           addGetRendering(line);
         }
       }
-      
-      // System.out.println(report);
-      renderingList.stream().filter(r -> r.getUid().equals("1286380911373-1657")).forEach(System.out::println);
-      Map<String, Long> counted = uidList.stream()
-          .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-      /*
-       * counted.entrySet().stream() //.parallel() .filter(map -> map.getValue() > 2)
-       * .forEach(System.out::println);
-       */
-
-      // System.out.println(counted);
-      // note that Scanner suppresses exceptions
-      
-      Map<String, List<Rendering>> renderingPerUID = renderingList.stream()
-          .collect(Collectors.groupingBy(Rendering::getUid));
-      //System.out.println("XXXXXXXXXXXXXx");
-      renderingPerUID.entrySet().stream().parallel() .filter(map -> map.getKey().equals("1286380911373-1657")).forEach(System.out::println);
-      //System.out.println(RenderingPerUID);
-      System.out.println("YYYYYYYY");
-      //removeDuplicates(RenderingPerUID).entrySet().stream().parallel().filter(map -> map.getKey().equals("1286380911373-1657")).forEach(System.out::println);
-      removeDuplicates(renderingPerUID).entrySet().stream().parallel().forEach(System.out::println);
-      
-      System.out.println("ZZZZZZZZZZZZZZZZZZ");
-      //renderingMap.entrySet().stream().parallel() .filter(map -> map.getKey().equals("1286380911373-1657")).forEach(System.out::println);
-      //System.out.println(RenderingPerUID);
-      Map<String, Rendering> singleMap = removeDuplicates(renderingPerUID);
-      //singleMap.entrySet().stream().parallel().forEach(System.out::println);
-      report.setRenderingList(new ArrayList<>(singleMap.values()));
+      report.setRenderingList(removeDuplicates());
       report.generateSummary();
       System.out.println(report);
       if (sc.ioException() != null) {
         throw sc.ioException();
       }
-    } catch (NumberFormatException e) {
-      e.printStackTrace();
     } catch (FileNotFoundException e) {
       System.out.println("Non-existent file!");
-    } catch (IOException e) {
+    } catch (NumberFormatException | IOException e) {
       e.printStackTrace();
     }
+    
+    return report;  
   }
 
   private void createRendering(String line, int workingThread) {
-    // System.out.println("workingThread: " + workingThread);
 
     String[] documentDetails = StringUtils
-        .substringBetween(StringUtils.substringAfter(line, EXECUTING_REQUEST_START_RENDERING), "[", "]")
-        .replaceAll("\\s+", "").split(",");
+        .substringBetween(StringUtils.substringAfter(line, EXECUTING_REQUEST_START_RENDERING), OPEN_BRACKETS, CLOSE_BRACKETS)
+        .replaceAll("\\s+", EMPTY_STRING).split(",");
     int documentId = Integer.parseInt(documentDetails[0]);
     int page = Integer.parseInt(documentDetails[1]);
-    // System.out.println("documentId: " + documentId + " page: " + page);
 
     Rendering rendering = new Rendering();
     rendering.setDocument(documentId);
     rendering.setPage(page);
     rendering.getWorkingThreadList().add(workingThread);
     renderingList.add(rendering);
-    //report.addRendering(rendering);
   }
   
   private void addStartRendering(String line, int workingThread) {
     
-    String startRenderingTimestamp = StringUtils.substringBefore(line, " [WorkerThread");
+    String startRenderingTimestamp = StringUtils.substringBefore(line, WORKER_THREAD);
     String uid = StringUtils.substringAfter(line, SERVICE_START_RENDERING_RETURNED);
-    
-    /*
-     * if (!renderingMap.containsKey(uid)) { renderingMap.put(uid,
-     * renderingList.stream() .filter(r ->
-     * r.getWorkingThreadList().contains(workingThread)) .filter(r ->
-     * r.getUid().equals("") || r.getUid().equals(uid)) .findAny() .orElse(null)); }
-     * 
-     * Rendering existing = renderingMap.get(uid);
-     * existing.getWorkingThreadList().add(workingThread);
-     * existing.getStart().add(startRenderingTimestamp);
-     */
-    
-    if (uid.equals("1286380911373-1657")) {
-      System.out.println("start rendering with id: " + uid + " workingthread: " + workingThread);
-    }
-    uidList.add(uid);
 
     renderingList.stream().filter(r -> r.getWorkingThreadList().contains(workingThread))
-        .filter(r -> r.getUid().equals("") || r.getUid().equals(uid)).findFirst().ifPresent(r -> {
+        .filter(r -> r.getUid().equals(EMPTY_STRING) || r.getUid().equals(uid)).findFirst().ifPresent(r -> {
           r.setUid(uid);
           r.getStart().add(startRenderingTimestamp);
         });
   }
   
   private void addGetRendering(String line) {
-    String getRenderingTimestamp = StringUtils.substringBefore(line, " [WorkerThread");
+    String getRenderingTimestamp = StringUtils.substringBefore(line, WORKER_THREAD);
     String uid = StringUtils.substringBetween(
-        StringUtils.substringAfter(line, EXECUTING_REQUEST_GET_RENDERING_WITH_ARGUMENTS), "[", "]");
+        StringUtils.substringAfter(line, EXECUTING_REQUEST_GET_RENDERING_WITH_ARGUMENTS), OPEN_BRACKETS, CLOSE_BRACKETS);
+
     renderingList.stream().filter(r -> r.getUid().equals(uid)).findFirst()
         .ifPresent(r -> r.getGet().add(getRenderingTimestamp));
   }
   
-  private Map<String, Rendering> removeDuplicates(Map<String, List<Rendering>> map) {
+  private List<Rendering> removeDuplicates() {
+    
+    Map<String, List<Rendering>> map = renderingList.stream()
+        .collect(Collectors.groupingBy(Rendering::getUid));
     
     Map<String, Rendering> singleEntryMap = new HashMap<>();
     for (Map.Entry<String, List<Rendering>> pair : map.entrySet()) {
@@ -179,6 +135,7 @@ public class ExtractReportService {
         singleEntryMap.put(pair.getKey(), renderingListWithSameUid.get(0));
       }
     }
-    return singleEntryMap;
+    return new ArrayList<>(singleEntryMap.values());
   }
+
 }

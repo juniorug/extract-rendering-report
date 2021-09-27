@@ -37,21 +37,26 @@ public class Report {
   public void addRendering(Rendering rendering) {
     renderingList.add(rendering);
   }
-  
+
   public void generateSummary() {
+
+    /*get the number of renderings and set to count*/
     summary.setCount(renderingList.size());
-    //TODO 
-    summary.setDuplicates(0);
-    /*
-     * renderingList.stream() .filter(rendering -> rendering.getStart().size() == 1)
-     * .forEach(System.out::println);
-     */
-    
+
+    /*get the number of duplicated renderings and set to duplicates*/
+    summary.setDuplicates(
+        renderingList.stream()
+          .filter(rendering -> rendering.getStart().size() > 1)
+          .map(x -> x.getStart().size() - 1)
+          .reduce(0, (l, r) -> l + r)
+    );
+
+    /*get the number of startRenderings without get and set to unnecessary*/
     summary.setUnnecessary( 
         renderingList.stream()
-        .filter(rendering -> rendering.getStart().isEmpty())
+        .filter(rendering -> rendering.getGet().isEmpty())
         .count()
-        );
+    );
   }
  
   @Override
