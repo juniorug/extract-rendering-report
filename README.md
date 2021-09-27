@@ -37,3 +37,11 @@ java -jar target/extract-rendering-report.jar "path/to/server.log"
 ```
 java -jar target/extract-rendering-report.jar /home/juniorug/Downloads/server.log
 ```
+
+### Output file
+
+The output file (report.xml) will be generated and can be found at: 
+
+```
+/output/report.xml
+```
