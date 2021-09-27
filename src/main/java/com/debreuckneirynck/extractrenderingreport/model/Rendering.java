@@ -3,13 +3,27 @@ package com.debreuckneirynck.extractrenderingreport.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
+
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Rendering {
 
   private int document;
+  
   private int page;
+  
+  @XmlTransient
   private List<Integer> workingThreadList;
+  
   private String uid;
+  
+  @XmlElement(name = "start")
   private List<String> start;
+  
+  @XmlElement(name = "get")
   private List<String> get;
 
   public Rendering() {
@@ -19,8 +33,6 @@ public class Rendering {
     this.uid = "";
     this.start = new ArrayList<>();
     this.get = new ArrayList<>();
-    //this.get.add("foo");
-    //this.get.add("bar");
   }
 
   public Rendering(int document, int page, List<Integer> workingThread, String uid, List<String> start, List<String> get) {

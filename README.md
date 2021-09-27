@@ -15,6 +15,10 @@ This tool receives a .log file as argument, processes it and generate one XML wi
 - Create the ExtractReportService class that will be responsible for processing the file and extract the required data
 - Create GenerateReportService class to convert the extracted information and generate the XML files
 
+### Dependencies
+
+- JDK 11+ 
+- Maven 3.0+
 
 ### Build
 
@@ -25,5 +29,11 @@ mvn clean compile assembly:single
 ### Run
 
 ```
-java -jar target/extract-rendering-report-0.0.1-SNAPSHOT.jar "path/to/server.log"
+java -jar target/extract-rendering-report.jar "path/to/server.log"
+```
+
+### Example
+
+```
+java -jar target/extract-rendering-report.jar /home/junior/Downloads/server.log
 ```

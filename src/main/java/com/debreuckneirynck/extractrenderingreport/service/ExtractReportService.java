@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,8 @@ import com.debreuckneirynck.extractrenderingreport.model.Report;
 
 public class ExtractReportService {
 
+  private static final Logger LOGGER = Logger.getLogger( ExtractReportService.class.getName() );
+  
   private static final String EXECUTING_REQUEST_START_RENDERING = "[ServiceProvider]: Executing request startRendering";
   private static final String SERVICE_START_RENDERING_RETURNED = "Service startRendering returned ";
   private static final String EXECUTING_REQUEST_GET_RENDERING_WITH_ARGUMENTS = "Executing request getRendering with arguments ";
@@ -57,12 +60,11 @@ public class ExtractReportService {
 
       report.setRenderingList(removeDuplicates());
       report.generateSummary();
-      System.out.println(report);
       if (sc.ioException() != null) {
         throw sc.ioException();
       }
     } catch (FileNotFoundException e) {
-      System.out.println("Non-existent file!");
+      LOGGER.severe("Non-existent file!");
     } catch (NumberFormatException | IOException e) {
       e.printStackTrace();
     }

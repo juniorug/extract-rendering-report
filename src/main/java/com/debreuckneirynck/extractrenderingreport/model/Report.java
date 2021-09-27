@@ -3,9 +3,16 @@ package com.debreuckneirynck.extractrenderingreport.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+
+@XmlRootElement
 public class Report {
 
+  @XmlElement(name="rendering")
   private List<Rendering> renderingList;
+  
   private Summary summary;
 
   public Report() {
@@ -18,7 +25,7 @@ public class Report {
     this.summary = summary;
   }
 
-  public List<Rendering> getRenderingList() {
+  public List<Rendering> getRenderings() {
     return renderingList;
   }
 

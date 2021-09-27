@@ -1,9 +1,15 @@
 package com.debreuckneirynck.extractrenderingreport.model;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Summary {
 
   private int count;
+  
   private int duplicates;
+  
   private long unnecessary;
 
   public Summary() {

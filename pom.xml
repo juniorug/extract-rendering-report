@@ -19,21 +19,25 @@
   </properties>
 
   <dependencies>
+    <!--  StringUtils dependency-->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.11</version>
     </dependency>
+
+    <!--  JAXB dependencies-->
     <dependency>
       <groupId>javax.xml.bind</groupId>
       <artifactId>jaxb-api</artifactId>
-      <version>2.2.9</version>
+      <version>2.4.0-b180830.0359</version>
     </dependency>
     <dependency>
-      <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb-impl</artifactId>
-      <version>2.2.5-b10</version>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>2.4.0-b180830.0438</version>
     </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>junit</groupId>
@@ -46,20 +50,10 @@
   <build>
     <pluginManagement>
       <plugins>
-        <!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jar-plugin</artifactId> 
-          <version>3.0.2</version> <configuration> <archive> <manifest> <mainClass>com.debreuckneirynck.extractrenderingreport.App</mainClass> 
-          </manifest> </archive> </configuration> </plugin> -->
-
-        <!-- <plugin> <artifactId>maven-assembly-plugin</artifactId> <configuration> 
-          <descriptorRefs> <descriptorRef>jar-with-dependencies</descriptorRef> </descriptorRefs> 
-          <finalName>${project.artifactId}-${project.version}-full</finalName> <appendAssemblyId>false</appendAssemblyId> 
-          <archive> <manifest> <mainClass>com.debreuckneirynck.extractrenderingreport.App</mainClass> 
-          </manifest> </archive> </configuration> <executions> <execution> <id>make-my-jar-with-dependenciess</id> 
-          <phase>package</phase> <goals> <goal>single</goal> </goals> </execution> 
-          </executions> </plugin> -->
-
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
+          <version>3.3.0</version>
           <executions>
             <execution>
               <phase>package</phase>
@@ -77,7 +71,7 @@
             <descriptorRefs>
               <descriptorRef>jar-with-dependencies</descriptorRef>
             </descriptorRefs>
-            <finalName>${project.build.finalName}</finalName>
+            <finalName>${artifactId}</finalName>
             <appendAssemblyId>false</appendAssemblyId>
           </configuration>
         </plugin>
