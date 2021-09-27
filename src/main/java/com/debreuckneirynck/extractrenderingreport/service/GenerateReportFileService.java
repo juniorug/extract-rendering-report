@@ -14,6 +14,11 @@ public class GenerateReportFileService {
     throw new IllegalStateException("Utility class");
   }
   
+  /**
+   * Generates a .xml file from the given report
+   * 
+   * @param report the processed Report
+   */
   public static void generateXmlFile(Report report) {
     File theDir = new File("output/");
     File xmlFile = new File("output/report.xml");

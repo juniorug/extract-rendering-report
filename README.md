@@ -35,5 +35,5 @@ java -jar target/extract-rendering-report.jar "path/to/server.log"
 ### Example
 
 ```
-java -jar target/extract-rendering-report.jar /home/junior/Downloads/server.log
+java -jar target/extract-rendering-report.jar /home/juniorug/Downloads/server.log
 ```

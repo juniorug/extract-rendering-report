@@ -32,6 +32,16 @@ public class ExtractReportService {
   
   private List<Rendering> renderingList; 
   
+  /**
+   * Returns a Report object based on processing file algorithm logic: Read the
+   * .log file line by line Look for Executing request startRendering. Look for
+   * Service startRendering returned UID. Look for Executing request getRendering.
+   * Remove duplicates for renderingList summarizing it. Generate the Report
+   * Summary
+   * 
+   * @param filename the file to be processed
+   * @return the processed Report
+   */
   public Report processFile(String filename) {
     Report report = new Report();
     renderingList = new ArrayList<>();
@@ -44,22 +54,27 @@ public class ExtractReportService {
         int workingThread = StringUtils.containsIgnoreCase(line, "WorkerThread-")
             ? Integer.parseInt(StringUtils.substringBetween(line, OPEN_BRACKETS, CLOSE_BRACKETS).split("-")[1])
             : -1;
-        
+
+        /* Look for Executing request startRendering and create a rendering*/
         if (line.contains(EXECUTING_REQUEST_START_RENDERING)) {
           createRendering(line,workingThread);
         }
-        
+
+        /* Look for Service startRendering returned UID and add start to the rendering*/
         if (line.contains(SERVICE_START_RENDERING_RETURNED)) {
           addStartRendering(line, workingThread);
         }
 
+        /* Look for Executing request getRendering and add get to the rendering*/
         if (line.contains(EXECUTING_REQUEST_GET_RENDERING_WITH_ARGUMENTS)) {
           addGetRendering(line);
         }
       }
 
+      /* Remove duplicates grouping it and generates the summary */
       report.setRenderingList(removeDuplicates());
       report.generateSummary();
+
       if (sc.ioException() != null) {
         throw sc.ioException();
       }
@@ -72,6 +87,14 @@ public class ExtractReportService {
     return report;  
   }
 
+  /**
+   * Generates the rendering item when the text Executing request startRendering is found.
+   * Extracts the documentId and page from the current line and set these information in rendering.
+   * Add rendering to the renderingList.
+   * 
+   * @param line the line that contains EXECUTING_REQUEST_START_RENDERING text
+   * @param workingThread the current working thread
+   */
   private void createRendering(String line, int workingThread) {
 
     String[] documentDetails = StringUtils
@@ -87,6 +110,14 @@ public class ExtractReportService {
     renderingList.add(rendering);
   }
   
+  /**
+   * Add a new entry in the startList when a Service startRendering is found .
+   * Filter the renderingList to get the rendering from workingThread and UID
+   * Extracts the timestamp from the current line and set these information in rendering startList.
+   * 
+   * @param line the line that contains EXECUTING_REQUEST_START_RENDERING text
+   * @param workingThread the current working thread
+   */
   private void addStartRendering(String line, int workingThread) {
     
     String startRenderingTimestamp = StringUtils.substringBefore(line, WORKER_THREAD);
@@ -98,7 +129,14 @@ public class ExtractReportService {
           r.getStart().add(startRenderingTimestamp);
         });
   }
-  
+
+  /**
+   * Add a new entry in the getList when a request getRendering is found .
+   * Filter the renderingList to get the rendering from UID
+   * Extracts the timestamp from the current line and set these information in rendering getList.
+   * 
+   * @param line the line that contains EXECUTING_REQUEST_START_RENDERING text
+   */
   private void addGetRendering(String line) {
     String getRenderingTimestamp = StringUtils.substringBefore(line, WORKER_THREAD);
     String uid = StringUtils.substringBetween(
@@ -108,14 +146,25 @@ public class ExtractReportService {
         .ifPresent(r -> r.getGet().add(getRenderingTimestamp));
   }
   
+  /**
+   * Returns a Rendering list grouping renderings with same UID.
+   * First creates a map grouping renderings by UID
+   * Then, if there's more than one rendering for same UID, creates a single rendering with the information from the repeated entries
+   * convert the map values to an arrayList.
+   *  
+   * @return    an arrayList of renderings without repeated UID
+   */
   private List<Rendering> removeDuplicates() {
     
+    /* group renderings by UID*/
     Map<String, List<Rendering>> map = renderingList.stream()
         .collect(Collectors.groupingBy(Rendering::getUid));
     
     Map<String, Rendering> singleEntryMap = new HashMap<>();
     for (Map.Entry<String, List<Rendering>> pair : map.entrySet()) {
       List<Rendering> renderingListWithSameUid = pair.getValue();
+      
+      /* if more than one rendering with same UID, a single rendering will be created*/
       if (renderingListWithSameUid.size() > 1) {
         Rendering rendering = new Rendering();
         int index = 0;
@@ -133,7 +182,7 @@ public class ExtractReportService {
         }
         singleEntryMap.put(pair.getKey(), rendering);
         
-      } else  if (renderingListWithSameUid.size() == 1) {
+      } else if (renderingListWithSameUid.size() == 1) {
         singleEntryMap.put(pair.getKey(), renderingListWithSameUid.get(0));
       }
     }

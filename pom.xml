@@ -19,14 +19,14 @@
   </properties>
 
   <dependencies>
-    <!--  StringUtils dependency-->
+    <!-- StringUtils dependency -->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.11</version>
     </dependency>
 
-    <!--  JAXB dependencies-->
+    <!-- JAXB dependencies -->
     <dependency>
       <groupId>javax.xml.bind</groupId>
       <artifactId>jaxb-api</artifactId>
@@ -43,6 +43,17 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <version>3.11.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>3.11.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
